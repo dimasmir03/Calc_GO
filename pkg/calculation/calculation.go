@@ -1,4 +1,4 @@
-package rpn
+package calculation
 
 import (
 	"errors"
