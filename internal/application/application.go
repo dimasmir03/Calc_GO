@@ -69,7 +69,23 @@ type Request struct {
 	Expression string `json:"expression"`
 }
 
+type SuccessResponse struct {
+	Result string `json:"result"`
+}
+
+type FailedResponse struct {
+	Error string `json:"error"`
+}
+
 func CalcHandler(w http.ResponseWriter, r *http.Request) {
+	// проверка что запрос отправлен методов POST
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(&FailedResponse{})
+		fmt.Fprintf(w, "%s", ErrInvalidMethod.Error())
+		return
+	}
+
 	request := new(Request)
 	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -82,16 +98,23 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, calculation.ErrInvalidExpression) {
 			fmt.Fprintf(w, "err: %s", err.Error())
+			w.WriteHeader(422)
+		} else if errors.Is(err, calculation.ErrDivisionByZero) {
+			fmt.Fprintf(w, "err: %s", err.Error())
+			w.WriteHeader(422)
 		} else {
-			fmt.Fprintf(w, "unknow err")
+			fmt.Fprintf(w, "Internal server error")
+			w.WriteHeader(500)
 		}
 
 	} else {
 		fmt.Fprintf(w, "result: %f", result)
+		w.WriteHeader(200)
 	}
 }
 
 func (a *Application) RunServer() error {
+	// единственный endpoint приложения который принимает запрос только метода POST
 	http.HandleFunc("/api/v1/calculate", CalcHandler)
 	return http.ListenAndServe(":"+a.config.Addr, nil)
 }
