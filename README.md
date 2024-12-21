@@ -27,12 +27,14 @@
 ### Инструкция
 
 1. Склонируйте репозиторий:
+
    ```bash
    git clone https://github.com/dimasmir03/Calc_GO
    cd Calc_GO
    ```
 
 2. Установите зависимости:
+
    ```bash
    go mod tidy
    ```
@@ -55,33 +57,37 @@
 Эндпоинт принимает JSON-запрос с математическим выражением и возвращает результат вычислений или сообщение об ошибке.
 
 **Пример запроса:**
+
 ```json
 {
-  "expression": "2+2*2"
+	"expression": "2+2*2"
 }
 ```
 
 **Пример ответа:**
 
 - Успешный результат:
+
   ```json
   {
-    "result": "6"
+  	"result": "6"
   }
   ```
 
 - Ошибка (Некорректное выражение):
+
   ```json
   {
-    "error": "Expression is not valid"
+  	"error": "Expression is not valid"
   }
   ```
+
   **HTTP-код:** 422
 
 - Ошибка (Внутренняя ошибка сервера):
   ```json
   {
-    "error": "Internal server error"
+  	"error": "Internal server error"
   }
   ```
   **HTTP-код:** 500
@@ -93,6 +99,7 @@
 #### Успешные вычисления
 
 **Запрос:**
+
 ```bash
 curl --location 'localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
@@ -100,17 +107,17 @@ curl --location 'localhost:8080/api/v1/calculate' \
 ```
 
 **Ответ:**
+
 ```json
 {
-  "result": "6"
+	"result": "6"
 }
 ```
 
 - Примечание: Для отображения заголовка ответа, включая код статуса, используйте параметр -i:
 
 ```bash
-Копировать код
-curl -i --location 'localhost/api/v1/calculate' \
+curl -i --location 'localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{"expression": "2+2*2"}'
 ```
@@ -120,16 +127,18 @@ curl -i --location 'localhost/api/v1/calculate' \
 1. **Некорректное выражение:**
 
    **Запрос:**
+
    ```bash
-   curl -i --location 'localhost:<PORT>/api/v1/calculate' \
+   curl -i --location 'localhost:8080/api/v1/calculate' \
    --header 'Content-Type: application/json' \
    --data '{"expression": "2+2a*2"}'
    ```
 
    **Ответ:**
+
    ```json
    {
-     "error": "Expression is not valid"
+   	"error": "Expression is not valid"
    }
    ```
 
@@ -138,16 +147,20 @@ curl -i --location 'localhost/api/v1/calculate' \
 2. **Деление на ноль:**
 
    **Запрос:**
+
    ```bash
-   curl --location 'localhost/api/v1/calculate' \
+   curl --location 'localhost:8080/api/v1/calculate' \
    --header 'Content-Type: application/json' \
    --data '{"expression": "10/0"}'
    ```
 
+   url --location 'localhost/api/v1/calculate' 
+
    **Ответ:**
+
    ```json
    {
-     "error": "Internal server error"
+   	"error": "Internal server error"
    }
    ```
 
@@ -160,18 +173,23 @@ curl -i --location 'localhost/api/v1/calculate' \
 Все запросы и ошибки логируются в консоль с использованием библиотеки `logrus`. Логи содержат информацию о типе запроса, времени его обработки и ошибках.
 
 Пример логов:
+
 ```
 INFO[2024-12-20 10:00:00] HTTP Запрос POST /api/v1/calculate 200ms
 ```
+
 ```
 ERROR[2024-12-20 10:01:00] HTTP Запрос POST /api/v1/calculate 500ms
 ```
+
 ```
 INFO[2024-12-20 10:02:00] HTTP Запрос POST /api/v1/calculate 100ms
 ```
+
 ```
 ERROR[2024-12-20 10:03:00] Internal server error
 ```
+
 ```
 ERROR[2024-12-20 10:04:00] Expression is not valid
 ```

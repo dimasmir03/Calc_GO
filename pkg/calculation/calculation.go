@@ -108,10 +108,10 @@ func evaluatePostfix(postfix []string) (float64, error) {
 				}
 				stack = append(stack, a/b)
 			default:
-				return 0, ErrUnknowOperator
+				return 0, ErrInvalidCharacter
 			}
 		} else {
-			return 0, ErrInvalidToken
+			return 0, ErrInvalidCharacter
 		}
 	}
 

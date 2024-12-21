@@ -80,14 +80,21 @@ type Request struct {
 }
 
 type SuccessResponse struct {
-	Result string `json:"result"`
+	Result float64 `json:"result"`
 }
 
 type FailedResponse struct {
 	Error string `json:"error"`
 }
 
-func CalcHandler(w http.ResponseWriter, r *http.Request) {
+func CalculationHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(&FailedResponse{Error: ErrInvalidMethod.Error()})
+		fmt.Println("[ERROR] ", ErrInvalidMethod.Error())
+		return
+	}
+
 	request := new(Request)
 	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -99,31 +106,21 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	result, err := calculation.Calc(request.Expression)
 	if err != nil {
 		if errors.Is(err, calculation.ErrInvalidExpression) {
-			w.WriteHeader(422)
-			json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
+			w.WriteHeader(http.StatusUnprocessableEntity)
 		} else if errors.Is(err, calculation.ErrDivisionByZero) {
 			w.WriteHeader(422)
-			json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
 		} else if errors.Is(err, calculation.ErrInvalidCharacter) {
 			w.WriteHeader(422)
-			json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
-		} else if errors.Is(err, calculation.ErrInvalidToken) {
-			w.WriteHeader(422)
-			json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
 		} else if errors.Is(err, calculation.ErrMismatchParentheses) {
 			w.WriteHeader(422)
-			json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
-		} else if errors.Is(err, calculation.ErrUnknowOperator) {
-			w.WriteHeader(422)
-			json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
 		} else {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(&FailedResponse{Error: http.StatusText(500)})
 		}
-
+		json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
 	} else {
-		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(&SuccessResponse{Result: fmt.Sprintf("%f", result)})
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(&SuccessResponse{Result: result})
 	}
 }
 
@@ -138,28 +135,11 @@ func Logging(logger *logrus.Logger) mux.MiddlewareFunc {
 	}
 }
 
-func CheckMethod(logger *logrus.Logger) mux.MiddlewareFunc {
-	return func(next http.Handler) http.Handler {
-		//middleware для проверки метода POST
-		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			// проверка что запрос отправлен методов POST
-			if req.Method != http.MethodPost {
-				w.WriteHeader(http.StatusMethodNotAllowed)
-				json.NewEncoder(w).Encode(&FailedResponse{Error: ErrInvalidMethod.Error()})
-				logger.Error(ErrInvalidMethod.Error())
-				return
-			}
-			next.ServeHTTP(w, req)
-		})
-	}
-}
-
 func (a *Application) RunServer() {
 	//Использование middleware для логирования
 	a.r.Use(Logging(a.log))
-	a.r.Use(CheckMethod(a.log))
 	// единственный endpoint приложения который принимает запрос только метода POST
-	a.r.HandleFunc("/api/v1/calculate", CalcHandler)
+	a.r.HandleFunc("/api/v1/calculate", CalculationHandler)
 	a.log.Infof("Starting server on :%s", a.config.Addr)
 	if err := http.ListenAndServe(":"+a.config.Addr, a.r); err != nil {
 		a.log.Errorf("Failed start server: %s", err.Error())
