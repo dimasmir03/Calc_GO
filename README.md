@@ -229,20 +229,9 @@ curl --location 'localhost:8080/api/v1/calculate' \
 
 ```
 INFO[2024-12-20 10:00:00] HTTP Запрос POST /api/v1/calculate 200ms
-```
-
-```
 ERROR[2024-12-20 10:01:00] HTTP Запрос POST /api/v1/calculate 500ms
-```
-
-```
 INFO[2024-12-20 10:02:00] HTTP Запрос POST /api/v1/calculate 100ms
-```
-
-```
 ERROR[2024-12-20 10:03:00] Internal server error
-```
-
-```
-ERROR[2024-12-20 10:04:00] Expression is not valid
+ERROR[2024-12-20 10:04:00] invalid expression
+ERROR[2024-12-20 10:05:00] mismatched parentheses
 ```
