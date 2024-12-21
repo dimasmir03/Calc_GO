@@ -41,14 +41,29 @@
 
 3. Запустите сервер с указанием порта через переменную окружения:
    ```bash
-   export PORT=8877 && go run ./cmd/calc/...
+   export PORT=8080 && go run ./cmd/calc/...
    ```
 
 После запуска сервер будет доступен по адресу `http://localhost:<PORT>`, где `<PORT>` — это порт, который вы указали в переменной окружения.
 
 ---
 
-## Документация API
+Тестирование
+
+Для запуска тестов выполните следующую команду:
+
+go test ./...
+
+Тесты проверяют корректность работы API, обработку различных ошибок и корректность выполнения математических операций.
+
+Пример результата тестирования:
+
+ok github.com/dimasmir03/Calc_GO/internal/application 0.272s
+ok github.com/dimasmir03/Calc_GO/pkg/calculation 0.181s
+
+---
+
+## API
 
 ### Единственный эндпоинт
 
@@ -154,17 +169,55 @@ curl -i --location 'localhost:8080/api/v1/calculate' \
    --data '{"expression": "10/0"}'
    ```
 
-   url --location 'localhost/api/v1/calculate' 
-
    **Ответ:**
 
    ```json
    {
-   	"error": "Internal server error"
+   	"error": "division by zero"
    }
    ```
 
    **HTTP-код:** 422
+
+3. **Неправильный символ в выражении:**
+
+**Запрос:**
+
+```bash
+curl --location 'localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{"expression": "2+a"}'
+```
+
+**Ответ:**
+
+```json
+{
+	"error": "invalid character"
+}
+```
+
+**HTTP-код:** 422
+
+4.  **Несовпадающие круглых скобок:**
+
+**Запрос:**
+
+```bash
+curl --location 'localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{"expression": "2*(2+2"}'
+```
+
+**Ответ:**
+
+```json
+{
+	"error": "mismatched parentheses"
+}
+```
+
+**HTTP-код:** 422
 
 ---
 

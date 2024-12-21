@@ -115,9 +115,11 @@ func CalculationHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(422)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(&FailedResponse{Error: http.StatusText(500)})
+			json.NewEncoder(w).Encode(&FailedResponse{Error: http.StatusText(http.StatusInternalServerError)})
+			fmt.Println("[ERROR] ", http.StatusText(http.StatusInternalServerError))
 		}
 		json.NewEncoder(w).Encode(&FailedResponse{Error: err.Error()})
+		fmt.Println("[ERROR] ", err.Error())
 	} else {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&SuccessResponse{Result: result})
