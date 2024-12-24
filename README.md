@@ -40,6 +40,7 @@
 ```
 
 3. Запустите сервер с указанием порта через переменную окружения:
+
 ```bash
    export PORT=8787 && go run ./cmd/calc/...
 ```
@@ -51,6 +52,7 @@
 Тестирование
 
 Для запуска тестов выполните следующую команду:
+
 ```bash
 go test ./...
 ```
@@ -147,14 +149,14 @@ curl -i --location 'localhost:8080/api/v1/calculate' \
    ```bash
    curl -i --location 'localhost:8080/api/v1/calculate' \
    --header 'Content-Type: application/json' \
-   --data '{"expression": "2+2a*2"}'
+   --data '{"expression": "2+2**2"}'
    ```
 
    **Ответ:**
 
    ```json
    {
-   	"error": "Expression is not valid"
+   	"error": "invalid expression"
    }
    ```
 
