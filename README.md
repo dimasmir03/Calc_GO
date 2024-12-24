@@ -43,7 +43,7 @@
 
 ## C указанием порта через переменную окружения
 
-### Linux, Mac, Windows(Git Bsh, WSL)
+### Linux, Mac, Windows(Git Bash, WSL)
 
 ```bash
    export PORT=8787 && go run ./cmd/calc/...
