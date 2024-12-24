@@ -22,7 +22,7 @@ type Config struct {
 
 func ConfigFromEnv() *Config {
 	config := new(Config)
-	config.Addr = os.Getenv("port")
+	config.Addr = os.Getenv("PORT")
 	if config.Addr == "" {
 		config.Addr = "8080"
 	}
